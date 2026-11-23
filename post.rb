@@ -185,7 +185,7 @@ end
 # ---------- pick ----------
 today = Date.today.to_s
 log = posted
-if !DRY && log.any? { |r| r[0] == today }
+if !DRY && !ARGV.include?("--force") && log.any? { |r| r[0] == today }
   puts "Already posted today (#{today}). Nothing to do."; exit 0
 end
 done = log.map { |r| r[1] }
@@ -215,9 +215,13 @@ branch = cfg['GITHUB_BRANCH'].to_s.empty? ? 'main' : cfg['GITHUB_BRANCH']
 
 # ---------- host image (public GitHub repo) ----------
 path = "posts/#{File.basename(img)}"
+gh_auth = { 'Authorization' => "Bearer #{cfg['GITHUB_TOKEN']}", 'Accept' => 'application/vnd.github+json' }
+# If the file already exists (e.g. from an earlier failed attempt), GitHub requires its sha to overwrite it.
+ecode, existing = http(:get, "https://api.github.com/repos/#{cfg['GITHUB_REPO']}/contents/#{path}?ref=#{branch}", nil, gh_auth)
+sha = ecode == 200 && existing.is_a?(Hash) ? existing['sha'] : nil
 code, res = http(:put, "https://api.github.com/repos/#{cfg['GITHUB_REPO']}/contents/#{path}",
-  JSON.generate(message: "post #{today} #{h['id']}", content: Base64.strict_encode64(File.binread(img)), branch: branch),
-  'Authorization' => "Bearer #{cfg['GITHUB_TOKEN']}", 'Accept' => 'application/vnd.github+json', 'Content-Type' => 'application/json')
+  JSON.generate({ message: "post #{today} #{h['id']}", content: Base64.strict_encode64(File.binread(img)), branch: branch, sha: sha }.compact),
+  gh_auth.merge('Content-Type' => 'application/json'))
 die("فشل رفع الصورة إلى GitHub (#{code}): #{res['message']}") unless [200, 201].include?(code)
 image_url = "https://raw.githubusercontent.com/#{cfg['GITHUB_REPO']}/#{branch}/#{path}"
 sleep 5
