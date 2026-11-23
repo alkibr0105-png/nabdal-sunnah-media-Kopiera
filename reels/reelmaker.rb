@@ -99,6 +99,11 @@ end
 def info(vid)
   f = File.join(SOURCES, "#{vid}.info.json")
   j = File.exist?(f) ? JSON.parse(File.read(f)) : {}
+  if j.empty?
+    c, b = Common.http(:get, "https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=#{vid}") rescue [0, ""]
+    o = (JSON.parse(b) rescue {})
+    j = { 'title' => o['title'], 'channel' => o['author_name'], 'channel_url' => o['author_url'] } if c == 200
+  end
   { title: j['title'], channel: j['channel'] || j['uploader'], channel_url: j['channel_url'] || j['uploader_url'], duration: j['duration'] }
 end
 
@@ -193,8 +198,15 @@ def full_run
       src.delete('error')
       log "#{added} klipp hittade"
     rescue StandardError => e
-      src['status'] = 'failed'; src['attempts'] = src['attempts'].to_i + 1; src['error'] = e.message[0, 300]
-      error.("video #{vid}", e)
+      if e.message =~ /not a bot|Sign in to confirm|HTTP Error 429/i
+        # YouTube blocks cloud servers. Never work around it: wait for the Mac collector or an uploaded file.
+        src['status'] = 'waiting_video'
+        src['error'] = 'YouTube blockerar molnet. Videon hämtas nästa gång Macen är på, eller ladda upp filen till releasen reels-sources som ' + "#{vid}.mp4"
+        log "Väntar på video #{vid} (YouTube blockerar molnet)"
+      else
+        src['status'] = 'failed'; src['attempts'] = src['attempts'].to_i + 1; src['error'] = e.message[0, 300]
+        error.("video #{vid}", e)
+      end
     end
     save.("bank: analys av #{vid}")
   end
@@ -241,6 +253,18 @@ end
 
 case ARGV[0]
 when 'run' then full_run
+when 'collect'
+  # Mac collector: fetch videos for new links (YouTube blocks cloud servers) and put them in cloud storage. Produces and publishes nothing.
+  parse_links(gh_client.get_file('reels/links.txt').first).each do |l|
+    next if source_asset("#{l[:vid]}.mp4")
+    begin
+      log "Hämtar #{l[:vid]} till molnlagringen…"
+      download(l[:vid], l[:url])
+    rescue StandardError => e
+      log "FEL #{l[:vid]}: #{e.message[0, 200]}"
+    end
+  end
+  log "Insamling klar."
 when 'local' then local_test(ARGV[1], (ARGV[2] || 3).to_i)
 when 'status' then status
 when 'analyse'
