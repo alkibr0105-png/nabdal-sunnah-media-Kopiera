@@ -25,11 +25,11 @@ end
 
 # links.txt: one YouTube link per line. Optional: "<link> | <reciter name>". Lines starting with # are ignored.
 def parse_links(txt)
-  txt.to_s.lines.map(&:strip).reject { |l| l.empty? || l.start_with?('#') }.filter_map do |l|
+  txt.to_s.lines.map(&:strip).reject { |l| l.empty? || l.start_with?('#') }.map do |l|
     url, name = l.split('|', 2).map(&:strip)
     v = vid_of(url) or next
     { vid: v, url: "https://www.youtube.com/watch?v=#{v}", reciter: name }
-  end.uniq { |x| x[:vid] }
+  end.compact.uniq { |x| x[:vid] }
 end
 
 def reciter_from_title(t)
