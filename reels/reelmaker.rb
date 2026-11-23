@@ -209,5 +209,31 @@ when 'analyse'
     log "#{v}: #{cands.size} klipp (#{(Time.now - t).round}s)"
     cands.each { |c| f = c[:run].first; l = c[:run].last; puts "  #{Quran.sura_name(f[:s])} #{f[:a]}–#{l[:a]}  #{c[:dur].round}s  score #{c[:score].round(1)}  @#{f[:t0].round}s" }
   end
+when 'make-one'
+  # ruby reels/reelmaker.rb make-one <vid> <sura> <from_aya>  → render one clip and put it in the bank as ready
+  vid, sura, from = ARGV[1], ARGV[2].to_i, ARGV[3].to_i
+  gh = Common::GitHub.new(Common.config)
+  bank = JSON.parse(gh.get_file('reels/bank.json').first || '{"sources":{},"clips":[],"errors":[]}')
+  url = "https://www.youtube.com/watch?v=#{vid}"
+  mp4 = download(vid, url)
+  meta = info(vid)
+  src = bank['sources'][vid] ||= { 'url' => url, 'added_at' => Time.now.utc.iso8601, 'status' => 'new' }
+  src.merge!('title' => meta[:title], 'channel' => meta[:channel], 'channel_url' => meta[:channel_url], 'duration' => meta[:duration])
+  src['reciter'] ||= reciter_from_title(meta[:title])
+  work, wd, cands = analyse(vid, mp4)
+  c = cands.find { |x| x[:run].first[:s] == sura && x[:run].first[:a] == from } or abort 'Klippet finns inte bland kandidaterna'
+  rec = clip_record(vid, src, c, { reciter: src['reciter'] })
+  file = File.join(WORK, vid, "#{rec['id']}.mp4")
+  r = Render.clip(mp4, work, c, wd, { reciter: rec['reciter'] }, file)
+  rec['caption'] = Common.caption(rec, verses_text(c))
+  rec['duration'] = r[:dur]
+  asset = gh.upload_asset(file, "#{rec['id']}.mp4")
+  rec.merge!('asset_id' => asset['id'], 'asset' => asset['name'], 'status' => 'ready', 'ready_at' => Time.now.utc.iso8601)
+  bank['clips'].reject! { |x| x['id'] == rec['id'] }
+  bank['clips'] << rec
+  bank['updated_at'] = Time.now.utc.iso8601
+  gh.put_file('reels/bank.json', JSON.pretty_generate(bank) + "\n", "bank: #{rec['id']} ready")
+  FileUtils.cp(file, File.join(ROOT, 'out', 'reels-test'))
+  log "✓ #{rec['id']} (#{r[:dur]} s) ligger i banken"
 else puts File.read(__FILE__)[/^# Reels.*?(?=^require)/m]
 end
