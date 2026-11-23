@@ -1,4 +1,4 @@
-# Shared helpers: config, GitHub API, captions. Used on the Mac (production) and on GitHub Actions (publishing).
+# Shared helpers: config, GitHub API, captions. Used by production (reelmaker.rb) and publishing (publish.rb), in the cloud or locally.
 Encoding.default_external = 'UTF-8'
 require 'net/http'
 require 'json'
@@ -9,6 +9,16 @@ module Common
   ROOT   = File.expand_path('..', __dir__)
   CONFIG = File.join(ROOT, 'config.env')
   RELEASE_TAG = 'reels-bank'
+  SOURCES_TAG = 'reels-sources'   # original videos + transcripts, so the cloud never has to re-download or re-transcribe
+  BACKUP_TAG  = 'backups'
+  CLOUD = !ENV['GITHUB_ACTIONS'].to_s.empty? || !ENV['NABD_CLOUD'].to_s.empty?
+
+  # Find a program: env override (e.g. FFMPEG=/path), then the project's own copy (Mac), then PATH (Linux/cloud).
+  def self.tool(name, env, *local)
+    return ENV[env] if ENV[env] && !ENV[env].empty?
+    local.map { |p| File.join(ROOT, p) }.find { |p| File.executable?(p) } ||
+      ENV['PATH'].split(File::PATH_SEPARATOR).map { |d| File.join(d, name) }.find { |p| File.executable?(p) } || name
+  end
 
   def self.config
     keys = %w[GRAPH_HOST GRAPH_VERSION IG_USER_ID IG_ACCESS_TOKEN GITHUB_REPO GITHUB_BRANCH GITHUB_TOKEN SMTP_USER SMTP_PASS NOTIFY_EMAIL]
@@ -70,43 +80,70 @@ module Common
       j
     end
 
-    def release
-      @release ||= begin
-        c, j = api(:get, "/releases/tags/#{RELEASE_TAG}")
-        if c != 200
-          c, j = api(:post, '/releases', { tag_name: RELEASE_TAG, target_commitish: @branch, name: 'Reels-bank (färdiga klipp)',
-                                           body: 'Färdigredigerade Reels som väntar på publicering. Skapas automatiskt.' })
-          raise "GitHub: kunde inte skapa release (#{c}): #{j['message']}" unless c == 201
+RELEASES = {
+  RELEASE_TAG => ["Reels-bank (färdiga klipp)", "Färdigredigerade Reels som väntar på publicering. Skapas automatiskt."],
+  SOURCES_TAG => ["Reels-källor (originalvideor + transkript)", "Originalvideor och transkript som Reels klipps från. Skapas automatiskt – radera inte."],
+      BACKUP_TAG  => ["Säkerhetskopior", "Veckovisa säkerhetskopior av publiceringshistorik och innehållsbank. Skapas automatiskt."]
+}.freeze
+
+def release(tag = RELEASE_TAG)
+  (@releases ||= {})[tag] ||= begin
+    c, j = api(:get, "/releases/tags/#{tag}")
+    if c != 200
+      name, body = RELEASES.fetch(tag)
+      c, j = api(:post, "/releases", { tag_name: tag, target_commitish: @branch, name: name, body: body })
+      raise "GitHub: kunde inte skapa release #{tag} (#{c}): #{j["message"]}" unless c == 201
+    end
+    j
+  end
+end
+
+def assets(tag = RELEASE_TAG)
+  out = []; page = 1
+  loop do
+    c, j = api(:get, "/releases/#{release(tag)["id"]}/assets?per_page=100&page=#{page}")
+    break unless c == 200 && j.is_a?(Array) && j.any?
+    out.concat(j); page += 1
+  end
+  out
+end
+
+# streams the file, so even 1–2 GB source videos upload without loading into memory
+def upload_asset(file, name, tag = RELEASE_TAG, type = "video/mp4")
+  old = assets(tag).find { |a| a["name"] == name }
+  api(:delete, "/releases/assets/#{old["id"]}") if old
+  uri = URI("https://uploads.github.com/repos/#{@repo}/releases/#{release(tag)["id"]}/assets?name=#{URI.encode_www_form_component(name)}")
+  req = Net::HTTP::Post.new(uri)
+  h("Content-Type" => type, "Content-Length" => File.size(file).to_s).each { |k, v| req[k] = v }
+  res = File.open(file, "rb") do |io|
+    req.body_stream = io
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true, read_timeout: 3600, write_timeout: 3600, open_timeout: 30) { |x| x.request(req) }
+  end
+  j = (JSON.parse(res.body) rescue {})
+  raise "GitHub: uppladdning av #{name} misslyckades (#{res.code}): #{j["message"]}" unless res.code.to_i == 201
+  j
+end
+
+# streams to disk; follows the redirect to GitHub storage without sending the token there
+def download_asset(asset_id, dest)
+  url = "https://api.github.com/repos/#{@repo}/releases/assets/#{asset_id}"
+  headers = h("Accept" => "application/octet-stream")
+  5.times do
+    uri = URI(url)
+    req = Net::HTTP::Get.new(uri); headers.each { |k, v| req[k] = v }
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true, read_timeout: 3600, open_timeout: 30) do |x|
+      x.request(req) do |res|
+        if res.is_a?(Net::HTTPRedirection) then url = res["location"]; headers = {}
+        elsif res.code.to_i == 200
+          File.open(dest, "wb") { |f| res.read_body { |chunk| f.write(chunk) } }
+          return dest
+        else raise "GitHub: kunde inte hämta fil (#{res.code})"
         end
-        j
       end
     end
-
-    def assets
-      out = []; page = 1
-      loop do
-        c, j = api(:get, "/releases/#{release['id']}/assets?per_page=100&page=#{page}")
-        break unless c == 200 && j.is_a?(Array) && j.any?
-        out.concat(j); page += 1
-      end
-      out
-    end
-
-    def upload_asset(file, name)
-      old = assets.find { |a| a['name'] == name }
-      api(:delete, "/releases/assets/#{old['id']}") if old
-      c, b = Common.http(:post, "https://uploads.github.com/repos/#{@repo}/releases/#{release['id']}/assets?name=#{URI.encode_www_form_component(name)}",
-                         body: File.binread(file), headers: h('Content-Type' => 'video/mp4'))
-      j = (JSON.parse(b) rescue {})
-      raise "GitHub: uppladdning av #{name} misslyckades (#{c}): #{j['message']}" unless c == 201
-      j
-    end
-
-    def download_asset(asset_id, dest)
-      c, b = Common.http(:get, "https://api.github.com/repos/#{@repo}/releases/assets/#{asset_id}", headers: h('Accept' => 'application/octet-stream'))
-      raise "GitHub: kunde inte hämta klipp (#{c})" unless c == 200
-      File.binwrite(dest, b)
-    end
+  end
+  raise "GitHub: för många omdirigeringar"
+end
   end
 
   AR_DIGITS = '٠١٢٣٤٥٦٧٨٩'
