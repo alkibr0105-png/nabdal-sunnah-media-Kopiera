@@ -13,8 +13,23 @@ Allt körs i molnet på **GitHub Actions**. Ingen dator behöver vara påslagen.
 Sommar- och vintertid hanteras automatiskt (tidszonen Europe/Stockholm).
 
 ## Det enda du behöver göra
-Lägg till godkända YouTube-länkar i **`reels/links.txt`** (öppna filen på GitHub → pennan → klistra in → *Commit changes*).
-Använd bara videor som du äger eller har tillstånd att återpublicera.
+Lägg till godkända videor i **`reels/links.txt`** – från dator, Windows eller mobil (github.com → filen → pennan → *Commit changes*):
+
+```
+<YouTube-länk> | <läsarens namn, valfritt> | <delningslänk till videofilen>
+```
+
+YouTube blockerar nedladdning från molnservrar, och det kringgås inte. Därför hämtar molnet **originalfilen** från en
+delningslänk (Google Drive eller Dropbox, "Alla som har länken") – t.ex. filen du fått från rättighetsinnehavaren.
+YouTube-länken används för titel, kanal och källhänvisning. Använd bara videor som du äger eller har tillstånd att återpublicera.
+Repot är publikt, så länkarna syns för alla.
+
+Alternativ: ladda upp filen direkt till releasen **reels-sources** som `<video-id>.mp4`.
+Datorn behövs inte. (`./install-reelmaker.sh` kan valfritt låta en Mac hämta länkar utan delningslänk när den råkar vara på.)
+
+## Kostnader
+Repot är publikt → GitHub Actions (minuter), releaser (videolagring) och cache är **gratis**. Inga betaltjänster används.
+Om repot görs privat blir minuterna begränsade och hadith-bilderna kan inte längre hämtas av Instagram – behåll det publikt.
 
 ## Databas och lagring (allt i repot, versionshanterat)
 | Data | Var |
