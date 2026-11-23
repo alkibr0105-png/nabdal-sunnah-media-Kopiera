@@ -1,0 +1,101 @@
+name: Reels-produktion
+
+# Produces Reels in the cloud: new links in reels/links.txt → transcribe (Whisper) → find complete verses → render 20–30 s clips
+# → store them in the bank (release "reels-bank"). Publishing is done by reels.yml. Only runs when reels/config.json says
+# "producer": "cloud", so the Mac and the cloud never produce at the same time.
+on:
+  schedule:
+    - cron: '15 */3 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'test = självtest (skriver inget i banken), run = producera nu'
+        type: choice
+        options: [test, run]
+        default: test
+
+permissions:
+  contents: write
+
+concurrency:
+  group: produce
+  cancel-in-progress: false
+
+env:
+  WHISPER_REF: v1.9.6
+  WHISPER_MODEL_FILE: ggml-large-v3-turbo-q5_0.bin
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPO: ${{ github.repository }}
+      NABD_CLOUD: '1'
+      REEL_BUDGET_MIN: '290'
+      WHISPER: ${{ github.workspace }}/.whisper/whisper-cli
+      WHISPER_MODEL: ${{ github.workspace }}/.whisper/model.bin
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+      LANG: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kontrollera producent
+        id: gate
+        run: |
+          P=$(ruby -rjson -e 'puts (JSON.parse(File.read("reels/config.json"))["producer"] rescue "mac")')
+          echo "producer=$P" >> "$GITHUB_OUTPUT"
+          if [ "${{ inputs.mode }}" != "test" ] && [ "$P" != "cloud" ]; then
+            echo "Producent är '$P' – molnet producerar inte än (bara test)."; echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Installera verktyg
+        if: steps.gate.outputs.skip != '1'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core > /dev/null
+          pipx install yt-dlp > /dev/null || pip install -q yt-dlp
+          ffmpeg -version | head -1; google-chrome --version
+
+      - name: Whisper (cache)
+        if: steps.gate.outputs.skip != '1'
+        id: wcache
+        uses: actions/cache@v4
+        with:
+          path: .whisper
+          key: whisper-${{ env.WHISPER_REF }}-${{ env.WHISPER_MODEL_FILE }}-avx2
+
+      - name: Bygg Whisper
+        if: steps.gate.outputs.skip != '1' && steps.wcache.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --depth 1 --branch "$WHISPER_REF" https://github.com/ggml-org/whisper.cpp.git /tmp/whisper.cpp
+          cmake -S /tmp/whisper.cpp -B /tmp/whisper.cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/whisper.cpp/build -j 4 --target whisper-cli > /dev/null
+          mkdir -p .whisper
+          cp /tmp/whisper.cpp/build/bin/whisper-cli .whisper/
+          curl -sSL -o .whisper/model.bin "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$WHISPER_MODEL_FILE"
+          ls -la .whisper
+
+      - name: Självtest
+        if: inputs.mode == 'test'
+        run: ruby reels/reelmaker.rb cloudtest
+
+      - name: Producera Reels
+        if: steps.gate.outputs.skip != '1' && inputs.mode != 'test'
+        run: ruby reels/reelmaker.rb run
+
+      - name: Testklipp
+        if: inputs.mode == 'test' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudtest
+          path: out/cloudtest/
+          if-no-files-found: ignore
+
+      - name: Felmejl
+        if: failure()
+        run: ruby reels/alert.rb "Reels-produktionen i molnet"
