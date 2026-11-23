@@ -1,0 +1,9 @@
+# Hemligheter och lokala filer – får aldrig hamna i git
+config.env
+*.env
+!config.example.env
+posted.log
+post.out.log
+post.err.log
+out/
+bin/
