@@ -1,0 +1,54 @@
+name: Reels
+
+# Publishes two Reels a day from the bank at 12:00 and 19:00 Swedish time (summer/winter time handled in reels/publish.rb).
+# Each slot has two scheduled runs (one for summer time, one for winter time); the script waits for the exact minute
+# and never publishes the same slot twice.
+on:
+  schedule:
+    - cron: '35 9 * * *'
+    - cron: '35 10 * * *'
+    - cron: '35 16 * * *'
+    - cron: '35 17 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run = visa nästa klipp, publish-now = publicera ett klipp nu, report = skicka rapport nu'
+        type: choice
+        options: [dry-run, publish-now, report]
+        default: dry-run
+
+permissions:
+  contents: write
+
+concurrency:
+  group: reels
+  cancel-in-progress: false
+
+jobs:
+  reels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPO: ${{ github.repository }}
+      IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publicera Reel
+        if: github.event_name == 'schedule' || inputs.mode != 'report'
+        run: |
+          case "${{ inputs.mode }}" in
+            dry-run)     ruby reels/publish.rb slot --now --dry-run ;;
+            publish-now) ruby reels/publish.rb slot --now ;;
+            *)           ruby reels/publish.rb slot ;;
+          esac
+      - name: Daglig rapport
+        if: always()
+        run: |
+          if [ "${{ inputs.mode }}" = "report" ]; then ruby reels/publish.rb report
+          elif [ "${{ inputs.mode }}" = "dry-run" ]; then ruby reels/publish.rb report --dry-run
+          else ruby reels/publish.rb daily-report; fi
