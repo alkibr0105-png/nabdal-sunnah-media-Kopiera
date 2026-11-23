@@ -1,20 +1,20 @@
 name: Daglig hadith-post
 
 on:
-  # GitHub räknar i UTC. 16:00 och 17:00 UTC täcker 18:00 svensk tid både sommar- och vintertid;
-  # steget "Tidskontroll" släpper bara igenom körningen när klockan i Stockholm är 18 eller senare,
-  # och post.rb publicerar aldrig mer än ett inlägg per dag.
+  # GitHub r√§knar i UTC. 16:00 och 17:00 UTC t√§cker 18:00 svensk tid b√•de sommar- och vintertid;
+  # steget "Tidskontroll" sl√§pper bara igenom k√∂rningen n√§r klockan i Stockholm √§r 18 eller senare,
+  # och post.rb publicerar aldrig mer √§n ett inl√§gg per dag.
   schedule:
     - cron: '0 16 * * *'
     - cron: '0 17 * * *'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'dry-run = skapa bild utan att publicera, publish = publicera på riktigt'
+        description: 'dry-run = skapa bild utan att publicera, publish = publicera p√• riktigt, test-email = skicka ett testmejl'
         required: true
         default: dry-run
         type: choice
-        options: [dry-run, publish]
+        options: [dry-run, publish, test-email]
 
 permissions:
   contents: write
@@ -36,7 +36,7 @@ jobs:
         id: gate
         run: |
           if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date +%H)" -lt 18 ]; then
-            echo "run=false" >> "$GITHUB_OUTPUT"; echo "Klockan är $(date +%H:%M) i Stockholm – väntar på nästa körning."
+            echo "run=false" >> "$GITHUB_OUTPUT"; echo "Klockan √§r $(date +%H:%M) i Stockholm ‚Äì v√§ntar p√• n√§sta k√∂rning."
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
@@ -55,14 +55,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_BRANCH: ${{ github.ref_name }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "dry-run" ]; then
             ruby post.rb --dry-run
+          elif [ "${{ inputs.mode }}" = "test-email" ]; then
+            ruby post.rb --test-email
           else
             ruby post.rb
           fi
 
-      - name: Spara förhandsbild
+      - name: Spara f√∂rhandsbild
+        if: steps.gate.outputs.run == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bild
+          path: out/*.jpg
+          if-no-files-found: ignore
+
+      - name: Spara posted.log
+        if: steps.gate.outputs.run == 'true' && github.event_name != 'workflow_dispatch' || inputs.mode == 'publish'
+        run: |
+          git config user.name "nabd-alsunnah-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posted.log
+          git diff --cached --quiet && exit 0
+          git commit -m "posted.log $(date +%F)"
+          git pull --rebase --quiet
+          git push
         if: steps.gate.outputs.run == 'true' && always()
         uses: actions/upload-artifact@v4
         with:
