@@ -194,6 +194,11 @@ def report
   lines << "Färdiga Reels som väntar i banken: #{ready}#{ready < 6 ? '  ⚠️ snart slut – lägg till fler YouTube-länkar' : ''}"
   lines << "Klipp som väntar på redigering (Macen): #{pending}" if pending > 0
   lines << "Dagens hadith: #{hadith ? 'publicerad ✓' : 'inte publicerad'}"
+  waiting = b['sources'].to_h.select { |_, s| %w[waiting_video failed].include?(s['status']) }
+  unless waiting.empty?
+    lines << '' << "Videor som väntar (#{waiting.size}):"
+    waiting.each { |v, s| lines << "  • https://youtu.be/#{v} – #{s['error']}" }
+  end
   lines << ''
   lines << (errs.empty? ? 'Fel och tekniska problem: inga ✓' : "Fel och tekniska problem (#{errs.size}):")
   errs.each { |e| lines << "  • #{e}" }
