@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نبض السنة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+  :root{
+    --olive:#3d4730; --olive-2:#56623f; --cream:#f7f2e8; --cream-2:#efe6d4;
+    --gold:#b8955a; --ink:#2b2a24; --muted:#6c6655;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1080px;overflow:hidden;background:#e9dcc3}
+  body{font-family:"Noto Naskh Arabic",serif;color:var(--ink);position:relative}
+
+  /* ===== Background scene (used when assets/background.jpg is missing) ===== */
+  .scene{position:absolute;inset:0;overflow:hidden}
+  .scene.photo{background:center/cover no-repeat}
+  .scene svg{position:absolute;inset:0;width:100%;height:100%}
+
+  /* ===== Badge ===== */
+  .badge{position:absolute;top:62px;left:50%;transform:translateX(-50%);
+    background:var(--olive);color:var(--cream);border-radius:14px;padding:14px 34px 14px 30px;
+    display:flex;align-items:center;gap:22px;box-shadow:0 0 0 3px rgba(247,242,232,.85),0 0 0 5px var(--gold),0 10px 24px rgba(0,0,0,.25)}
+  .badge .txt{text-align:center;line-height:1.25}
+  .badge .t1{font-size:34px;font-weight:600}
+  .badge .t2{font-size:25px;font-weight:500;opacity:.9}
+  .badge svg{width:46px;height:46px}
+  .orn-top{position:absolute;top:186px;left:50%;transform:translateX(-50%);width:200px}
+
+  /* ===== Card ===== */
+  .card{position:absolute;left:50%;transform:translateX(-50%);top:226px;width:688px;height:560px;
+    background:linear-gradient(180deg,var(--cream),var(--cream-2));border-radius:34px;
+    box-shadow:0 0 0 2px #d8c9a8,0 0 0 9px rgba(247,242,232,.55),0 22px 50px rgba(40,30,10,.35);
+    padding:44px 52px 40px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .card .corner{position:absolute;width:58px;height:58px;opacity:.75}
+  .card .c1{top:10px;right:10px}.card .c2{top:10px;left:10px;transform:scaleX(-1)}
+  .card .c3{bottom:10px;right:10px;transform:scaleY(-1)}.card .c4{bottom:10px;left:10px;transform:scale(-1,-1)}
+  .intro{font-size:31px;font-weight:500;color:var(--olive);margin-bottom:10px}
+  .content{flex:1;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0}
+  .head{font-weight:700;line-height:1.55;color:var(--ink);font-size:62px;text-wrap:balance}
+  .sep{display:flex;align-items:center;gap:14px;width:74%;margin:16px auto}
+  .sep i{flex:1;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  .sep svg{width:22px;height:22px}
+  .body{font-size:27px;line-height:1.75;color:#3f3c33;font-weight:500;text-wrap:balance}
+  .pill{margin-top:16px;background:var(--olive);color:var(--cream);border-radius:999px;padding:9px 30px;font-size:24px;font-weight:600;white-space:nowrap}
+  .pill small{font-size:20px;opacity:.85;font-weight:500}
+
+  /* ===== Bottom bar ===== */
+  .bar{position:absolute;left:0;right:0;bottom:0;height:150px;background:rgba(244,237,224,.97);
+    border-top:2px solid #dccfb2;display:flex;align-items:center;padding:0 46px 0 46px;gap:26px;direction:ltr}
+  .bar .brand{direction:rtl;text-align:right}
+  .logo{width:116px;height:116px;border-radius:26px;background:linear-gradient(160deg,var(--olive-2),var(--olive));
+    border:3px solid var(--cream);box-shadow:0 0 0 2px var(--gold),0 8px 18px rgba(0,0,0,.25);margin-top:-46px;display:grid;place-items:center}
+  .logo svg{width:80px;height:80px}
+  .brand .name{font-size:40px;font-weight:700;color:var(--olive);display:flex;align-items:center;gap:8px}
+  .brand .tag{font-size:22px;color:var(--muted);margin-top:-4px}
+  .spacer{flex:1}
+  .vline{width:1.5px;height:76px;background:#cbbd9c}
+  .act{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--olive);font-size:21px;font-weight:600;min-width:84px}
+  .act svg{width:40px;height:40px}
+</style>
+</head>
+<body>
+<div class="scene" id="scene">
+  <svg viewBox="0 0 1080 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#cfc3ad"/><stop offset=".42" stop-color="#ead7b4"/>
+        <stop offset=".62" stop-color="#f6e2b8"/><stop offset="1" stop-color="#e7d3ae"/>
+      </linearGradient>
+      <radialGradient id="sun" cx=".72" cy=".55" r=".55">
+        <stop offset="0" stop-color="#fff3d2" stop-opacity=".95"/><stop offset="1" stop-color="#fff3d2" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#e9dcc3"/><stop offset="1" stop-color="#cdbb98"/>
+      </linearGradient>
+      <linearGradient id="dome" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5f8a5a"/><stop offset="1" stop-color="#2f5a35"/>
+      </linearGradient>
+      <linearGradient id="stone" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#d9c8a6"/><stop offset=".5" stop-color="#efe3c9"/><stop offset="1" stop-color="#c7b38d"/>
+      </linearGradient>
+      <filter id="blur"><feGaussianBlur stdDeviation="2.2"/></filter>
+      <filter id="soft"><feGaussianBlur stdDeviation="14"/></filter>
+    </defs>
+    <rect width="1080" height="1080" fill="url(#sky)"/>
+    <rect width="1080" height="1080" fill="url(#sun)"/>
+    <!-- clouds -->
+    <g fill="#fffaf0" opacity=".55" filter="url(#soft)">
+      <ellipse cx="200" cy="90" rx="220" ry="40"/><ellipse cx="560" cy="60" rx="260" ry="34"/>
+      <ellipse cx="900" cy="130" rx="200" ry="36"/><ellipse cx="380" cy="190" rx="170" ry="26"/>
+    </g>
+    <!-- mosque (left), softened like a photo backdrop -->
+    <g filter="url(#blur)" opacity=".92">
+      <rect x="-20" y="610" width="420" height="200" fill="#e8dcc1"/>
+      <g fill="#d6c6a3">
+        <path d="M10 690h380v14H10z"/>
+        <path d="M30 720a18 22 0 0 1 36 0v70H30zM90 720a18 22 0 0 1 36 0v70H90zM150 720a18 22 0 0 1 36 0v70h-36zM210 720a18 22 0 0 1 36 0v70h-36zM270 720a18 22 0 0 1 36 0v70h-36zM330 720a18 22 0 0 1 36 0v70h-36z" fill="#bfae88"/>
+      </g>
+      <rect x="120" y="560" width="160" height="58" fill="#e3d6ba"/>
+      <path d="M128 562c0-70 34-116 72-128 38 12 72 58 72 128z" fill="url(#dome)"/>
+      <path d="M200 434v-34" stroke="#b8955a" stroke-width="5"/>
+      <circle cx="200" cy="396" r="7" fill="#c9a865"/>
+      <!-- minarets -->
+      <g fill="#e6d9bd" stroke="#cdbb95" stroke-width="2">
+        <rect x="318" y="300" width="30" height="330"/><rect x="312" y="300" width="42" height="14"/>
+        <rect x="314" y="420" width="38" height="12"/><path d="M318 300l15-70 15 70z"/>
+        <rect x="64" y="380" width="24" height="250"/><rect x="59" y="380" width="34" height="12"/>
+        <path d="M64 380l12-56 12 56z"/>
+      </g>
+      <path d="M333 230v-30" stroke="#b8955a" stroke-width="4"/><path d="M76 324v-22" stroke="#b8955a" stroke-width="3"/>
+    </g>
+    <!-- right column + arch -->
+    <g opacity=".95">
+      <rect x="930" y="0" width="150" height="820" fill="url(#stone)"/>
+      <rect x="944" y="300" width="122" height="380" rx="8" fill="#c9b48a" opacity=".45"/>
+      <path d="M944 300h122M944 680h122" stroke="#a8915f" stroke-width="3"/>
+      <path d="M930 0c40 70 70 110 150 130V0z" fill="#b8955a" opacity=".55"/>
+    </g>
+    <!-- marble floor -->
+    <rect y="800" width="1080" height="280" fill="url(#floor)"/>
+    <g stroke="#bfa984" stroke-width="1.5" opacity=".5">
+      <path d="M0 860h1080M0 930h1080M540 800L-200 1080M540 800l740 280M540 800L260 1080M540 800l280 280"/>
+    </g>
+    <!-- greenery bottom-left -->
+    <g fill="#4f7a3e" opacity=".85" filter="url(#blur)">
+      <ellipse cx="40" cy="905" rx="70" ry="26" transform="rotate(-25 40 905)"/>
+      <ellipse cx="90" cy="880" rx="60" ry="20" transform="rotate(-50 90 880)"/>
+      <ellipse cx="10" cy="860" rx="55" ry="18" transform="rotate(-70 10 860)"/>
+      <ellipse cx="130" cy="920" rx="58" ry="18" transform="rotate(-10 130 920)"/>
+    </g>
+  </svg>
+</div>
+
+<div class="badge">
+  <svg viewBox="0 0 48 48" fill="none" stroke="#f7f2e8" stroke-width="2.6" stroke-linecap="round"><rect x="6" y="10" width="36" height="32" rx="5"/><path d="M6 19h36M16 6v8M32 6v8"/><path d="M14 27h4M22 27h4M30 27h4M14 34h4M22 34h4" stroke-width="3"/></svg>
+  <div class="txt"><div class="t1">حديث اليوم</div><div class="t2" id="topic"></div></div>
+</div>
+<svg class="orn-top" viewBox="0 0 200 20"><path d="M10 10h70M120 10h70" stroke="#b8955a" stroke-width="1.6"/><path d="M100 2l8 8-8 8-8-8z" fill="#b8955a"/><circle cx="84" cy="10" r="2.5" fill="#b8955a"/><circle cx="116" cy="10" r="2.5" fill="#b8955a"/></svg>
+
+<div class="card" id="card">
+  <svg class="corner c1" viewBox="0 0 60 60" fill="none" stroke="#b8955a" stroke-width="1.6"><path d="M58 2H24c0 10-6 16-16 16H2"/><path d="M58 8H30c0 12-8 20-20 20H2"/><circle cx="50" cy="16" r="3" fill="#b8955a"/></svg>
+  <svg class="corner c2" viewBox="0 0 60 60" fill="none" stroke="#b8955a" stroke-width="1.6"><path d="M58 2H24c0 10-6 16-16 16H2"/><path d="M58 8H30c0 12-8 20-20 20H2"/><circle cx="50" cy="16" r="3" fill="#b8955a"/></svg>
+  <svg class="corner c3" viewBox="0 0 60 60" fill="none" stroke="#b8955a" stroke-width="1.6"><path d="M58 2H24c0 10-6 16-16 16H2"/><path d="M58 8H30c0 12-8 20-20 20H2"/><circle cx="50" cy="16" r="3" fill="#b8955a"/></svg>
+  <svg class="corner c4" viewBox="0 0 60 60" fill="none" stroke="#b8955a" stroke-width="1.6"><path d="M58 2H24c0 10-6 16-16 16H2"/><path d="M58 8H30c0 12-8 20-20 20H2"/><circle cx="50" cy="16" r="3" fill="#b8955a"/></svg>
+  <div class="intro" id="intro"></div>
+  <div class="content" id="content">
+    <div class="head" id="head"></div>
+    <div class="sep" id="sep"><i></i><svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#b8955a"/></svg><i></i></div>
+    <div class="body" id="body"></div>
+  </div>
+  <div class="pill" id="pill"></div>
+</div>
+
+<div class="bar">
+  <div class="logo"><svg viewBox="0 0 80 80" fill="#f7f2e8"><path d="M22 56c0-12 8-20 18-23 10 3 18 11 18 23z"/><rect x="18" y="56" width="44" height="6" rx="1"/><rect x="12" y="30" width="5" height="32"/><path d="M12 30l2.5-9 2.5 9z"/><rect x="63" y="30" width="5" height="32"/><path d="M63 30l2.5-9 2.5 9z"/><path d="M40 33v-7" stroke="#f7f2e8" stroke-width="2"/><circle cx="40" cy="24" r="2"/></svg></div>
+  <div class="brand">
+    <div class="name">نبض السنة <svg width="30" height="30" viewBox="0 0 30 30" fill="#56623f"><path d="M6 26C6 14 14 6 26 4c-2 12-8 20-20 22z"/><path d="M6 26L18 12" stroke="#f4ede0" stroke-width="1.6"/></svg></div>
+    <div class="tag">كل يوم حديث تعيش به</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="vline"></div>
+  <div class="act"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M12 8h16v26l-8-6-8 6z"/></svg>احفظ</div>
+  <div class="act"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M34 6L4 18l12 4 4 12z"/><path d="M34 6L16 22"/></svg>شارك</div>
+  <div class="act"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M20 34S5 25 5 15a7.5 7.5 0 0 1 15-2 7.5 7.5 0 0 1 15 2c0 10-15 19-15 19z"/></svg>تأمل وعمل</div>
+</div>
+
+<script src="hadiths.js"></script>
+<script>
+(async function(){
+  const q = new URLSearchParams(location.search);
+  const id = q.get('id');
+  const H = window.HADITHS.find(x => x.id === id) || window.HADITHS[0];
+
+  // Optional real background photo: drop it at assets/background.jpg
+  const img = new Image();
+  img.onload = () => { const s=document.getElementById('scene'); s.innerHTML=''; s.classList.add('photo'); s.style.backgroundImage='url(assets/background.jpg)'; };
+  img.src = 'assets/background.jpg';
+
+  document.getElementById('topic').textContent = H.t;
+  document.getElementById('intro').textContent = H.i;
+  document.getElementById('head').textContent = H.h;
+  const body = document.getElementById('body');
+  if (H.b) body.textContent = H.b; else { body.remove(); document.getElementById('sep').remove(); }
+  const gradeTxt = /البخاري|مسلم/.test(H.s) ? '' : ' <small>· ' + H.g + '</small>';
+  document.getElementById('pill').innerHTML = H.s + gradeTxt;
+
+  await document.fonts.ready;
+  // Auto-fit: shrink headline (then body) until everything fits in the card.
+  const content = document.getElementById('content');
+  const head = document.getElementById('head');
+  let hs = H.h.length < 30 ? 70 : H.h.length < 60 ? 60 : H.h.length < 100 ? 50 : 42;
+  let bs = 27;
+  const fits = () => content.scrollHeight <= content.clientHeight + 1;
+  head.style.fontSize = hs + 'px'; if (H.b) body.style.fontSize = bs + 'px';
+  while (!fits() && hs > 30) { hs -= 2; head.style.fontSize = hs + 'px'; if (H.b && bs > 22) { bs -= 1; body.style.fontSize = bs + 'px'; } }
+  document.body.setAttribute('data-ready', '1');
+})();
+</script>
+</body>
+</html>
