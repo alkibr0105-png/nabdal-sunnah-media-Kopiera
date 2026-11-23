@@ -7,3 +7,7 @@ post.out.log
 post.err.log
 out/
 bin/
+sources/
+work/
+tools/
+.whisper/
