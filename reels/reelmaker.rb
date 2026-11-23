@@ -13,6 +13,7 @@ require_relative 'render'
 
 ROOT    = Common::ROOT
 YTDLP   = Common.tool("yt-dlp", "YTDLP", "bin/yt-dlp")
+FFPROBE = Common.tool("ffprobe", "FFPROBE", "bin/ffprobe")
 FFMPEG  = Render::FFMPEG
 WHISPER = Common.tool("whisper-cli", "WHISPER", "tools/whisper.cpp/build/bin/whisper-cli")
 MODEL   = ENV["WHISPER_MODEL"].to_s.empty? ? File.join(ROOT, "tools/models/ggml-large-v3-turbo-q5_0.bin") : ENV["WHISPER_MODEL"]
@@ -31,9 +32,11 @@ end
 # links.txt: one YouTube link per line. Optional: "<link> | <reciter name>". Lines starting with # are ignored.
 def parse_links(txt)
   txt.to_s.lines.map(&:strip).reject { |l| l.empty? || l.start_with?('#') }.map do |l|
-    url, name = l.split('|', 2).map(&:strip)
+    url, *rest = l.split('|').map(&:strip)
     v = vid_of(url) or next
-    { vid: v, url: "https://www.youtube.com/watch?v=#{v}", reciter: name }
+    file = rest.find { |x| x =~ %r{\Ahttps?://} }
+    name = rest.find { |x| !x.empty? && x !~ %r{\Ahttps?://} }
+    { vid: v, url: "https://www.youtube.com/watch?v=#{v}", reciter: name, file: file }
   end.compact.uniq { |x| x[:vid] }
 end
 
@@ -46,7 +49,7 @@ def gh_client() $gh ||= Common::GitHub.new(Common.config) end
 def source_asset(name) gh_client.assets(Common::SOURCES_TAG).find { |x| x["name"] == name } end
 
 # 1) local copy  2) cloud storage (release "reels-sources")  3) YouTube
-def download(vid, url)
+def download(vid, url, file_url = nil)
   mp4 = File.join(SOURCES, "#{vid}.mp4")
   FileUtils.mkdir_p(SOURCES)
   unless File.size?(mp4)
@@ -54,6 +57,8 @@ def download(vid, url)
       log "Hämtar originalvideon från molnlagringen…"
       gh_client.download_asset(a["id"], mp4)
       (i = source_asset("#{vid}.info.json")) && gh_client.download_asset(i["id"], File.join(SOURCES, "#{vid}.info.json"))
+    elsif file_url
+      fetch_file(file_url, mp4)
     else
       Render.run!(YTDLP, "--no-warnings", "--no-progress", "--ffmpeg-location", File.dirname(FFMPEG),
                   "-f", "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720]", "--merge-output-format", "mp4",
@@ -63,6 +68,35 @@ def download(vid, url)
   raise "nedladdningen gav ingen fil" unless File.size?(mp4)
   store_source(vid, mp4)
   mp4
+end
+
+# Video file from a share link (the rights holder's original): Google Drive, Dropbox or any direct link.
+# This is the cloud route – it works from Windows or a phone and never touches YouTube.
+def fetch_file(link, mp4)
+  url = link.dup
+  if (id = link[%r{drive\.google\.com/(?:file/d/|open\?id=|uc\?.*id=)([\w-]{20,})}, 1])
+    url = "https://drive.usercontent.google.com/download?id=#{id}&export=download&confirm=t"
+  elsif link.include?("dropbox.com")
+    url = link.sub(/([?&])dl=0/, '\1dl=1'); url += (url.include?("?") ? "&" : "?") + "dl=1" unless url =~ /[?&]dl=1/
+  end
+  raw = mp4 + ".download"
+  log "Hämtar videofilen från delningslänken…"
+  Render.run!("curl", "-sSL", "-f", "--retry", "3", "-o", raw, url)
+  probe, st = Open3.capture2e(FFPROBE, "-v", "error", "-show_entries", "stream=codec_type,codec_name,height", "-of", "csv=p=0", raw)
+  unless st.success? && probe.include?("video")
+    File.delete(raw) if File.exist?(raw)
+    raise "Länken gav ingen video – kontrollera att delningen är 'Alla som har länken': #{link}"
+  end
+  v = probe.lines.find { |x| x.start_with?("video") }.to_s.split(",")
+  a = probe.lines.find { |x| x.start_with?("audio") }.to_s.split(",")
+  if v[1] == "h264" && v[2].to_i <= 1080 && a[1] == "aac"
+    Render.run!(FFMPEG, "-v", "error", "-y", "-i", raw, "-map", "0:v:0", "-map", "0:a:0", "-c", "copy", "-movflags", "+faststart", mp4)
+  else
+    log "Konverterar videon till 720p MP4…"
+    Render.run!(FFMPEG, "-v", "error", "-y", "-i", raw, "-map", "0:v:0", "-map", "0:a:0", "-vf", "scale=-2:'min(720,ih)'",
+                "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", mp4)
+  end
+  File.delete(raw)
 end
 
 # keep every original + metadata in cloud storage (once)
@@ -182,7 +216,7 @@ def full_run
     next if src['status'] == 'failed' && src['attempts'].to_i >= 3
     begin
       log "Ny video: #{vid}"
-      mp4 = download(vid, lnk[:url])
+      mp4 = download(vid, lnk[:url], lnk[:file])
       meta = info(vid)
       src.merge!('title' => meta[:title], 'channel' => meta[:channel], 'channel_url' => meta[:channel_url], 'duration' => meta[:duration])
       src['reciter'] = lnk[:reciter] || reciter_from_title(meta[:title])
@@ -259,7 +293,7 @@ when 'collect'
     next if source_asset("#{l[:vid]}.mp4")
     begin
       log "Hämtar #{l[:vid]} till molnlagringen…"
-      download(l[:vid], l[:url])
+      download(l[:vid], l[:url], l[:file])
     rescue StandardError => e
       log "FEL #{l[:vid]}: #{e.message[0, 200]}"
     end
