@@ -25,10 +25,11 @@ module Render
   end
 
   # silence intervals in the source audio, cached per source
-  def self.silences(work)
+  def self.silences(work, src = nil)
     f = File.join(work, 'silence.json')
     return JSON.parse(File.read(f)) if File.exist?(f)
-    out = run!(FFMPEG, '-hide_banner', '-nostats', '-i', File.join(work, 'audio.wav'), '-af', 'silencedetect=noise=-32dB:d=0.3', '-f', 'null', '-')
+    wav = File.join(work, 'audio.wav'); input = File.size?(wav) ? wav : src
+    out = run!(FFMPEG, '-hide_banner', '-nostats', '-i', input, '-vn', '-af', 'silencedetect=noise=-32dB:d=0.3', '-f', 'null', '-')
     starts = out.scan(/silence_start: ([\d.]+)/).flatten.map(&:to_f)
     ends   = out.scan(/silence_end: ([\d.]+)/).flatten.map(&:to_f)
     sil = starts.zip(ends).reject { |a, b| b.nil? }
@@ -37,8 +38,8 @@ module Render
   end
 
   # clip in/out points snapped to the pauses around the verses
-  def self.bounds(work, c, wd)
-    sil = silences(work)
+  def self.bounds(work, c, wd, src = nil)
+    sil = silences(work, src)
     t0 = c[:run].first[:t0]; t1 = c[:run].last[:t1]
     i0 = c[:run].first[:i0]; i1 = c[:run].last[:i1]
     prev_end   = i0 > 0 ? wd[i0 - 1][2] : 0
@@ -83,7 +84,7 @@ module Render
   end
 
   def self.clip(src_video, work, c, wd, meta, out_file)
-    start, stop = bounds(work, c, wd)
+    start, stop = bounds(work, c, wd, src_video)
     dur = (stop - start).round(2)
     f = c[:run].first; l = c[:run].last
     rng = f[:a] == l[:a] ? ar(f[:a]) : "#{ar(f[:a])}–#{ar(l[:a])}"
