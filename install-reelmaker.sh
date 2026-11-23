@@ -1,6 +1,7 @@
 #!/bin/zsh
-# Installs (or removes with --remove) the Mac job that PRODUCES Reels every 2 hours while the Mac is on.
-# It never publishes anything: publishing is done by GitHub Actions (.github/workflows/reels.yml).
+# Installs (or removes with --remove) the Mac helper job, every 2 hours while the Mac is on. It never publishes.
+#   ./install-reelmaker.sh          collector (default): fetches videos for new links into cloud storage – YouTube blocks cloud servers
+#   ./install-reelmaker.sh run      full production on the Mac (fallback; set "producer": "mac" in reels/config.json)
 set -euo pipefail
 DIR="${0:A:h}"
 LABEL="com.nabdalsunnah.reelmaker"
@@ -11,13 +12,14 @@ if [[ "${1:-}" == "--remove" ]]; then
   rm -f "$PLIST"; echo "Reels-produktionen på Macen är avstängd."; exit 0
 fi
 
+MODE="collect"; [[ "${1:-}" == "run" ]] && MODE="run"
 mkdir -p "$HOME/Library/LaunchAgents" "$DIR/work"
 cat > "$PLIST" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
   <key>Label</key><string>$LABEL</string>
-  <key>ProgramArguments</key><array><string>/usr/bin/ruby</string><string>$DIR/reels/reelmaker.rb</string><string>run</string></array>
+  <key>ProgramArguments</key><array><string>/usr/bin/ruby</string><string>$DIR/reels/reelmaker.rb</string><string>$MODE</string></array>
   <key>WorkingDirectory</key><string>$DIR</string>
   <key>StartInterval</key><integer>7200</integer>
   <key>RunAtLoad</key><true/>
@@ -30,4 +32,4 @@ cat > "$PLIST" <<EOF
 EOF
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Klart: Macen letar efter nya länkar och producerar Reels varannan timme när den är på."
+echo "Klart (läge: $MODE): Macen kollar reels/links.txt varannan timme när den är på."
