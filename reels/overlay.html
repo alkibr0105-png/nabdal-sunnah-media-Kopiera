@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@500;600;700&display=block" rel="stylesheet">
+<style>
+  :root{--olive:#3d4730;--olive-2:#56623f;--cream:#f7f2e8;--gold:#b8955a;--ink:#2b2a24}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;background:transparent;font-family:"Noto Naskh Arabic",serif}
+  .frame{position:relative;width:1080px;height:1920px;overflow:hidden}
+  .sub{position:relative;width:1080px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
+  /* header */
+  .head{position:absolute;top:250px;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}
+  .pill{display:inline-block;background:var(--olive);color:var(--cream);border-radius:18px;padding:12px 44px 16px;
+    box-shadow:0 0 0 3px rgba(247,242,232,.85),0 0 0 5px var(--gold),0 10px 24px rgba(0,0,0,.35)}
+  .pill .s{font-size:52px;font-weight:700;line-height:1.3}
+  .pill .v{font-size:32px;font-weight:600;color:#e8cf95;line-height:1.3}
+  .pill .r{font-size:30px;font-weight:500;opacity:.9;line-height:1.3}
+
+  /* brand (above Instagram's bottom UI) */
+  .brand{position:absolute;top:1395px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:20px;direction:ltr;
+    background:rgba(244,237,224,.94);border-radius:22px;padding:12px 30px 12px 14px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+  .logo{width:82px;height:82px;border-radius:20px;background:linear-gradient(160deg,var(--olive-2),var(--olive));
+    border:3px solid var(--cream);box-shadow:0 0 0 2px var(--gold);display:grid;place-items:center}
+  .logo svg{width:58px;height:58px}
+  .brand .txt{direction:rtl;text-align:right;line-height:1.15}
+  .brand .n{font-size:38px;font-weight:700;color:var(--olive)}
+  .brand .h{font-size:24px;color:#6c6655;direction:ltr;text-align:right}
+
+  /* intro card */
+  .intro{position:absolute;left:90px;right:90px;top:560px;height:440px;border-radius:34px;
+    background:linear-gradient(180deg,rgba(247,242,232,.97),rgba(239,230,212,.97));
+    box-shadow:0 0 0 2px #d8c9a8,0 0 0 9px rgba(247,242,232,.45),0 22px 50px rgba(0,0,0,.45);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+  .intro .k{font-size:34px;color:var(--olive);font-weight:600}
+  .intro .t{font-family:"Amiri Quran",serif;font-size:96px;color:var(--ink);line-height:1.5}
+  .intro .r{font-size:36px;color:#4b4638;font-weight:600}
+  .intro .orn{width:60%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+  /* subtitles */
+  .box{width:1000px;padding:18px 40px 24px;border-radius:28px;background:rgba(20,22,16,.62);
+    box-shadow:0 0 0 2px rgba(184,149,90,.75);text-align:center}
+  .q{font-family:"Amiri Quran",serif;color:#fff;font-size:60px;line-height:2.05;text-wrap:balance}
+  .q .n{color:#e8cf95;font-size:.8em}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="spec.js"></script>
+<script>
+const S = window.SPEC, root = document.getElementById('root');
+const logo = '<svg viewBox="0 0 80 80" fill="#f7f2e8"><path d="M22 56c0-12 8-20 18-23 10 3 18 11 18 23z"/><rect x="18" y="56" width="44" height="6" rx="1"/><rect x="12" y="30" width="5" height="32"/><path d="M12 30l2.5-9 2.5 9z"/><rect x="63" y="30" width="5" height="32"/><path d="M63 30l2.5-9 2.5 9z"/><path d="M40 33v-7" stroke="#f7f2e8" stroke-width="2"/><circle cx="40" cy="24" r="2"/></svg>';
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// frame 1: static header + brand
+root.insertAdjacentHTML('beforeend', `<div class="frame">
+  <div class="head"><div class="pill"><div class="s">${esc(S.title)}</div><div class="v">${esc(S.verses)}</div>${S.reciter ? `<div class="r">${esc(S.reciter)}</div>` : ''}</div></div>
+  <div class="brand"><div class="logo">${logo}</div><div class="txt"><div class="n">نبض السنة</div><div class="h">@nabdal_sunnah</div></div></div>
+</div>`);
+// frame 2: intro card
+root.insertAdjacentHTML('beforeend', `<div class="frame"><div class="intro">
+  <div class="k">${esc(S.introKicker)}</div><div class="orn"></div>
+  <div class="t">${esc(S.introTitle)}</div>
+  ${S.reciter ? `<div class="r">${esc(S.reciter)}</div>` : ''}
+</div></div>`);
+// subtitle frames
+S.chunks.forEach(c => {
+  root.insertAdjacentHTML('beforeend', `<div class="sub" style="height:${S.subH}px"><div class="box"><div class="q">${esc(c.text)}${c.num ? ` <span class="n">﴿${c.num}﴾</span>` : ''}</div></div></div>`);
+});
+// make sure every subtitle fits its frame
+document.fonts.ready.then(() => {
+  document.querySelectorAll('.sub .q').forEach(q => {
+    let fs = 60;
+    while (q.parentElement.offsetHeight > S.subH - 10 && fs > 34) { fs -= 2; q.style.fontSize = fs + 'px'; }
+  });
+  document.title = 'ready';
+});
+</script>
+</body>
+</html>
