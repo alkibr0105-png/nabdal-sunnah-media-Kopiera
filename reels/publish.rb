@@ -120,7 +120,9 @@ def run_slot
   b = bank
   clip = next_clip(b, pub)
   unless clip
-    record_error(slot, 'Banken är tom – inga färdiga Reels att publicera. Lägg till fler YouTube-länkar.')
+    pending = b['clips'].count { |c| c['status'] == 'pending' }
+    record_error(slot, pending > 0 ? "Inga färdiga Reels ännu – #{pending} klipp väntar på redigering på Macen (slå på datorn)." :
+                                     'Banken är tom – inga färdiga Reels att publicera. Lägg till fler YouTube-länkar.')
     return
   end
   log "Nästa klipp: #{clip['id']} – سورة #{clip['sura_name']} #{clip['from']}–#{clip['to']}"
