@@ -107,7 +107,7 @@ module Render
     fc << "[bg][fg]overlay=0:#{VID_Y}[b0]"
     fc << "[1:v]format=rgba,split=#{n + 2}" + (0...(n + 2)).map { |i| "[o#{i}]" }.join
     fc << "[o0]crop=1080:1920:0:0[static]"
-    fc << "[o1]crop=1080:1920:0:1920,fade=t=out:st=2.4:d=0.5:alpha=1[intro]"
+    fc << "[o1]crop=1080:1920:0:1920,fade=t=out:st=1.6:d=0.4:alpha=1[intro]"
     ch.each_with_index { |_, i| fc << "[o#{i + 2}]crop=1080:#{SUB_H}:0:#{3840 + i * SUB_H}[s#{i}]" }
     fc << "[b0][static]overlay=0:0[b1]"
     last = 'b1'
@@ -115,7 +115,7 @@ module Render
       fc << "[#{last}][s#{i}]overlay=0:#{SUB_Y}:enable='between(t,#{x[:a]},#{x[:b] - 0.01})'[c#{i}]"
       last = "c#{i}"
     end
-    fc << "[#{last}][intro]overlay=0:0:enable='lt(t,3)',fade=t=in:st=0:d=0.3,fade=t=out:st=#{(dur - 0.5).round(2)}:d=0.5,format=yuv420p[vout]"
+    fc << "[#{last}][intro]overlay=0:0:enable='lt(t,2.1)',fade=t=in:st=0:d=0.3,fade=t=out:st=#{(dur - 0.5).round(2)}:d=0.5,format=yuv420p[vout]"
     fc << "[0:a]asetpts=PTS-STARTPTS,highpass=f=70,loudnorm=I=-14:TP=-1.5:LRA=11,afade=t=in:d=0.25,afade=t=out:st=#{(dur - 0.6).round(2)}:d=0.6,aresample=48000[aout]"
     run!(FFMPEG, '-y', '-v', 'error', '-ss', start.to_s, '-t', dur.to_s, '-i', src_video,
          '-loop', '1', '-framerate', '30', '-t', dur.to_s, '-i', png,
