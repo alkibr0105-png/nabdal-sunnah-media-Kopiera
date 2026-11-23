@@ -1,0 +1,42 @@
+name: Drift (felmejl + säkerhetskopia)
+
+# 1) Emails an alert as soon as any of the automatic workflows fails.
+# 2) Makes a weekly backup of the publishing history and the content bank (release "backups").
+on:
+  workflow_run:
+    workflows: ['Daglig hadith-post', 'Reels', 'Reels-produktion']
+    types: [completed]
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  alert:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    env:
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+      GITHUB_RUN_ID: ${{ github.event.workflow_run.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ruby reels/alert.rb "${{ github.event.workflow_run.name }}"
+
+  backup:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPO: ${{ github.repository }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ruby reels/backup.rb
+      - if: failure()
+        run: ruby reels/alert.rb "Säkerhetskopieringen"
