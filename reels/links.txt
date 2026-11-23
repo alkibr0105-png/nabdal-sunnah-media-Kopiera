@@ -1,8 +1,17 @@
-# YouTube-länkar för Reels – en länk per rad.
+# YouTube-länkar för Reels – en video per rad. Fungerar från dator, Windows och mobil (redigera filen på github.com).
 # Lägg bara till videor som du äger eller har tillstånd att återpublicera.
-# Valfritt: skriv läsarens namn efter ett | om det inte står i videons titel, t.ex.
-#   https://www.youtube.com/watch?v=XXXXXXXXXXX | الشيخ ياسر الدوسري
-# Macen kollar den här filen varannan timme och lägger nya videor i arbetsflödet automatiskt.
+#
+# Format:  <YouTube-länk> | <läsarens namn, valfritt> | <delningslänk till videofilen>
+#
+# Delningslänken (Google Drive eller Dropbox, inställd på "Alla som har länken") behövs eftersom
+# YouTube blockerar nedladdning från molnservrar. Molnet hämtar då originalfilen därifrån
+# (t.ex. filen du fått från rättighetsinnehavaren). Allt annat sker automatiskt i molnet.
+# Obs: repot är publikt, så länkarna i den här filen syns för alla.
+#
+# Exempel:
+#   https://www.youtube.com/watch?v=XXXXXXXXXXX | الشيخ ياسر الدوسري | https://drive.google.com/file/d/....../view
+#
+# Utan delningslänk väntar videon (syns i dagliga rapporten) tills filen finns.
 
 https://www.youtube.com/watch?v=pG7Z2_F4HCc
 https://www.youtube.com/watch?v=01i-u6Vywrg
