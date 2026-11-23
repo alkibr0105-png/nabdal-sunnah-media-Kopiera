@@ -1,9 +1,9 @@
-# Find complete-verse clips (30–90 s) in a transcribed recitation.
+# Find complete-verse clips (20–30 s) in a transcribed recitation.
 require_relative 'quran'
 
 module Analyze
-  MIN = 30.0
-  MAX = 90.0
+  MIN = 20.0
+  MAX = 28.5   # verse span; padding at the cuts keeps the finished video ≤ 30 s
 
   # whisper.cpp JSON (-ml 1 -sow -oj) → [[norm, t0, t1, raw], ...]
   def self.load_words(json_file)
@@ -82,14 +82,15 @@ module Analyze
         (x...vs.size).each do |y|
           run = vs[x..y]
           dur = run.last[:t1] - run.first[:t0]
-          break if dur > MAX + 2
+          break if dur > MAX
           next if dur < MIN
           next unless good_run?(wd, run)
           f = run.first; l = run.last
+          next if f[:s] == 1   # al-Fatiha is recited in every rak'ah – skip
           score = 0
           score += 3 if Quran.ruku_start?(f[:s], f[:a])
           score += 3 if Quran.ruku_end?(l[:s], l[:a])
-          score += 1 if dur.between?(40, 75)
+          score += 1 if dur.between?(22, 28)
           score += run.sum { |v| v[:cov] } / run.size
           all << { run: run, dur: dur, score: score }
         end
