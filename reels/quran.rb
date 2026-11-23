@@ -4,7 +4,7 @@
 require 'json'
 
 module Quran
-  TOOLS = File.expand_path('../tools', __dir__)
+  TOOLS = File.join(__dir__, 'data')   # Tanzil files, kept verbatim with their notices
   DIAC  = /[ؐ-ًؚ-ٰٟۖ-ۭـ࣓-ࣿ]/
 
   def self.norm(w)
