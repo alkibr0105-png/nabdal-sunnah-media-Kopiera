@@ -2,11 +2,15 @@
 require 'open3'
 require 'fileutils'
 require_relative 'analyze'
+require_relative 'common'
 
 module Render
   ROOT   = File.expand_path('..', __dir__)
-  FFMPEG = File.join(ROOT, 'bin', 'ffmpeg')
-  CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  FFMPEG = Common.tool('ffmpeg', 'FFMPEG', 'bin/ffmpeg')
+  MAC_CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  CHROME = ENV['CHROME_BIN'].to_s.empty? ? (File.exist?(MAC_CHROME) ? MAC_CHROME :
+           %w[google-chrome google-chrome-stable chromium chromium-browser].map { |n| Common.tool(n, 'X_NONE') }.find { |p| p.include?('/') } || 'google-chrome') : ENV['CHROME_BIN']
+  CHROME_EXTRA = RUBY_PLATFORM.include?('linux') ? ['--no-sandbox'] : []
   SUB_H  = 330
   SUB_Y  = 1095
   VID_Y  = 470
@@ -93,7 +97,7 @@ module Render
     File.write(File.join(tmp, 'spec.js'), "window.SPEC = #{JSON.generate(spec)};")
     h = 1920 * 2 + SUB_H * ch.size
     png = File.join(tmp, 'overlay.png')
-    run!(CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', "--user-data-dir=#{tmp}/profile",
+    run!(CHROME, *CHROME_EXTRA, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', "--user-data-dir=#{tmp}/profile",
          '--allow-file-access-from-files', "--window-size=1080,#{h}", '--force-device-scale-factor=1',
          '--default-background-color=00000000', '--virtual-time-budget=10000', "--screenshot=#{png}",
          "file://#{tmp.gsub(' ', '%20')}/overlay.html")
