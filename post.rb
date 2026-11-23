@@ -11,6 +11,7 @@ require 'uri'
 require 'base64'
 require 'date'
 require 'open3'
+require 'tmpdir'
 
 Encoding.default_external = Encoding::UTF_8
 DIR    = File.expand_path(__dir__)
@@ -114,6 +115,38 @@ def graph_host(cfg)
   cfg['IG_ACCESS_TOKEN'].to_s.start_with?('EAA') ? 'graph.facebook.com' : 'graph.instagram.com'
 end
 
+# ---------- e-mail notification (Gmail SMTP via curl; never fails the post) ----------
+# Needs env/config: SMTP_USER (Gmail address), SMTP_PASS (Gmail app password), NOTIFY_EMAIL (recipient).
+def send_email(subject, body)
+  cfg = load_config
+  user = ENV['SMTP_USER'] || cfg['SMTP_USER']; pass = ENV['SMTP_PASS'] || cfg['SMTP_PASS']; to = ENV['NOTIFY_EMAIL'] || cfg['NOTIFY_EMAIL']
+  if [user, pass, to].any? { |v| v.to_s.empty? } then puts 'E-post: inte konfigurerad, hoppar över.'; return false end
+  msg = <<~MAIL.gsub("\n", "\r\n")
+    From: =?UTF-8?B?#{Base64.strict_encode64('نبض السنة – bot')}?= <#{user}>
+    To: <#{to}>
+    Subject: =?UTF-8?B?#{Base64.strict_encode64(subject)}?=
+    Date: #{Time.now.strftime('%a, %d %b %Y %H:%M:%S %z')}
+    MIME-Version: 1.0
+    Content-Type: text/plain; charset=UTF-8
+    Content-Transfer-Encoding: base64
+
+    #{Base64.encode64(body)}
+  MAIL
+  f = File.join(Dir.tmpdir, "nabd-mail-#{Process.pid}.eml"); File.write(f, msg)
+  netrc = File.join(Dir.tmpdir, "nabd-netrc-#{Process.pid}")
+  File.write(netrc, "machine smtp.gmail.com login #{user} password #{pass.delete(' ')}\n"); File.chmod(0600, netrc)
+  out, st = Open3.capture2e('curl', '-sS', '--ssl-reqd', '--url', 'smtps://smtp.gmail.com:465', '--netrc-file', netrc,
+                            '--mail-from', user, '--mail-rcpt', to, '--upload-file', f)
+  File.delete(f, netrc)
+  puts(st.success? ? "E-post skickad." : "E-post misslyckades: #{out.strip}")
+  st.success?
+end
+
+if ARGV.include?('--test-email')
+  ok = send_email('🧪 Test från نبض السنة', "Det här är ett testmejl.\nNär en hadith publiceras får du ett sådant här mejl med länk till inlägget.\n")
+  exit(ok ? 0 : 1)
+end
+
 # ---------- --check: verify credentials, publish nothing, never print secrets ----------
 if ARGV.include?('--check')
   cfg = load_config
@@ -205,6 +238,22 @@ die("فشل النشر (#{code}): #{res.dig('error', 'message')}") unless code =
 File.open(LOG, 'a') { |f| f.puts [today, h['id'], res['id']].join("\t") }
 left = hadiths.size - done.size - 1
 notify("تم نشر حديث اليوم: #{h['s']} — المتبقي في البنك: #{left}")
+
+_, pl = http(:get, "#{graph}/#{res['id']}?fields=permalink&access_token=#{URI.encode_www_form_component(token)}")
+send_email("✅ Publicerad: #{h['s']}", <<~BODY)
+  Dagens hadith är publicerad på @nabdal_sunnah.
+
+  Inlägg: #{pl['permalink'] || '(länk saknas)'}
+  Datum: #{today}
+
+  #{h['i']}:
+  «#{h['h']}»
+
+  #{h['s']} — #{h['g']}
+  Källa: #{h['u']}
+
+  Kvar i banken: #{left} verifierade hadither.#{left <= 5 ? "\n⚠️ Banken håller på att ta slut – lägg till fler verifierade hadither." : ''}
+BODY
 
 # Keep an Instagram-Login token alive (long-lived tokens last 60 days; refresh weekly).
 if graph.include?('graph.instagram.com') && (cfg['TOKEN_REFRESHED'].to_s.empty? || Date.parse(cfg['TOKEN_REFRESHED']) < Date.today - 7)
