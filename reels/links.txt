@@ -1,0 +1,9 @@
+# YouTube-länkar för Reels – en länk per rad.
+# Lägg bara till videor som du äger eller har tillstånd att återpublicera.
+# Valfritt: skriv läsarens namn efter ett | om det inte står i videons titel, t.ex.
+#   https://www.youtube.com/watch?v=XXXXXXXXXXX | الشيخ ياسر الدوسري
+# Macen kollar den här filen varannan timme och lägger nya videor i arbetsflödet automatiskt.
+
+https://www.youtube.com/watch?v=pG7Z2_F4HCc
+https://www.youtube.com/watch?v=01i-u6Vywrg
+https://www.youtube.com/watch?v=_6pTp5V_R3A
