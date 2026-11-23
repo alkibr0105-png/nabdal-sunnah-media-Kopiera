@@ -118,7 +118,10 @@ def run_slot
   pub = published
   return log("Redan publicerat för #{slot} idag (annan körning).") if pub.any? { |r| r[0] == today && r[3] == slot } && slot != 'manual'
   b = bank
-  clip = next_clip(b, pub)
+  one = ARGV.include?('--clip') ? ARGV[ARGV.index('--clip') + 1] : nil
+  clip = one ? b['clips'].find { |c| c['id'] == one && c['status'] == 'ready' } : next_clip(b, pub)
+  abort "Klippet #{one} finns inte som färdigt i banken" if one && !clip
+  abort "Klippet #{one} är redan publicerat" if one && pub.any? { |r| r[1] == one }
   unless clip
     pending = b['clips'].count { |c| c['status'] == 'pending' }
     record_error(slot, pending > 0 ? "Inga färdiga Reels ännu – #{pending} klipp väntar på redigering på Macen (slå på datorn)." :
@@ -130,7 +133,8 @@ def run_slot
     puts "\n--- Beskrivning ---\n#{clip['caption']}\n"
     return
   end
-  unless publish_enabled?
+  # a one-off, explicitly named clip (--clip ID) may be published while the schedule is still switched off
+  unless publish_enabled? || one
     log 'Publicering är avstängd (reels/config.json → "publish": false). Inget publicerat.'
     return
   end
