@@ -501,7 +501,8 @@
       "channel": "مكة و الحرمين",
       "source_url": "https://youtu.be/pG7Z2_F4HCc?t=1124",
       "score": 2.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "pG7Z2_F4HCc-44-43-48-1190",
@@ -3052,7 +3053,12 @@
       "at": "2026-11-24T01:25:16Z",
       "where": "klipp pG7Z2_F4HCc-44-30-33-1093",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T01:25:17Z",
+      "where": "klipp pG7Z2_F4HCc-44-35-37-1124",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T01:25:16Z"
+  "updated_at": "2026-11-24T01:25:17Z"
 }
