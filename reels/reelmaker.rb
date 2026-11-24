@@ -247,7 +247,7 @@ def full_run
 
   # 2. render pending clips → upload to the bank (release assets)
   cache = {}
-  bank['clips'].select { |c| c['status'] == 'pending' }.each_with_index do |rec, n|
+  bank['clips'].select { |c| c['status'] == 'pending' || (c['status'] == 'failed' && c['attempts'].to_i < 3) }.each_with_index do |rec, n|
     break log("Tidsbudgeten slut – fortsätter nästa körning.") if Time.now > deadline
     vid = rec['vid']
     begin
@@ -255,7 +255,12 @@ def full_run
       mp4 = download(vid, bank['sources'][vid]['url']) unless File.size?(mp4)
       cache[vid] ||= analyse(vid, mp4)
       work, wd, cands = cache[vid]
-      c = cands.find { |x| clip_record(vid, {}, x, { reciter: rec['reciter'] })['id'] == rec['id'] }
+      id_of = ->(x) { clip_record(vid, {}, x, { reciter: rec['reciter'] })['id'] }
+      c = cands.find { |x| id_of.(x) == rec['id'] }
+      # the greedy pick can differ between runs: look among all valid runs for the same verses near the same time
+      c ||= Analyze.candidates(wd, Quran.align(wd), pick: false)
+              .select { |x| f = x[:run].first; f[:s] == rec['sura'] && f[:a] == rec['from'] && x[:run].last[:a] == rec['to'] }
+              .min_by { |x| (x[:run].first[:t0] - rec['id'].split('-').last.to_f).abs }
       raise 'klippet hittades inte vid ny analys' unless c
       file = File.join(WORK, vid, "#{rec['id']}.mp4")
       log "Renderar #{rec['id']}…"
@@ -266,7 +271,7 @@ def full_run
       rec.merge!('asset_id' => asset['id'], 'asset' => asset['name'], 'status' => 'ready', 'ready_at' => Time.now.utc.iso8601)
       File.delete(file)
     rescue StandardError => e
-      rec['status'] = 'failed'; rec['error'] = e.message[0, 300]
+      rec['status'] = 'failed'; rec['error'] = e.message[0, 300]; rec['attempts'] = rec['attempts'].to_i + 1
       error.("klipp #{rec['id']}", e)
     end
     save.("bank: #{rec['id']} #{rec['status']}") if (n % 5 == 4) || rec['status'] != 'ready'
