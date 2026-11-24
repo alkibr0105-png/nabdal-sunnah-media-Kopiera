@@ -1881,7 +1881,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=6969",
       "score": 1.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ ٱلَّذِى خَلَقَ سَبْعَ سَمَـٰوَٰتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِى خَلْقِ ٱلرَّحْمَـٰنِ مِن تَفَـٰوُتٍ ۖ فَٱرْجِعِ ٱلْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ ﴿٣﴾ ﴾\n\n📖 سورة الملك — الآية ٣\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=6969\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_الملك #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 20.04,
+      "asset_id": 785364577,
+      "asset": "01i-u6Vywrg-67-3-3-6969.mp4",
+      "ready_at": "2026-11-24T02:20:43Z"
     },
     {
       "id": "01i-u6Vywrg-67-6-7-7023",
@@ -1894,7 +1899,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=7023",
       "score": 1.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-67-9-9-7065",
@@ -3448,7 +3454,12 @@
       "at": "2026-11-24T02:20:05Z",
       "where": "klipp 01i-u6Vywrg-3-113-113-6825",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T02:20:43Z",
+      "where": "klipp 01i-u6Vywrg-67-6-7-7023",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T02:20:05Z"
+  "updated_at": "2026-11-24T02:20:43Z"
 }
