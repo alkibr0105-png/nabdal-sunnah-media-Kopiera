@@ -1461,7 +1461,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=4565",
       "score": 4.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ قُلْ مَآ أَسْـَٔلُكُمْ عَلَيْهِ مِنْ أَجْرٍ وَمَآ أَنَا۠ مِنَ ٱلْمُتَكَلِّفِينَ ﴿٨٦﴾ إِنْ هُوَ إِلَّا ذِكْرٌ لِّلْعَـٰلَمِينَ ﴿٨٧﴾ وَلَتَعْلَمُنَّ نَبَأَهُۥ بَعْدَ حِينٍۭ ﴿٨٨﴾ ﴾\n\n📖 سورة ص — الآيات ٨٦–٨٨\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=4565\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_ص #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 29.07,
+      "asset_id": 785327696,
+      "asset": "01i-u6Vywrg-38-86-88-4565.mp4",
+      "ready_at": "2026-11-24T02:04:59Z"
     },
     {
       "id": "01i-u6Vywrg-25-62-62-4651",
@@ -1474,7 +1479,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=4651",
       "score": 1.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-25-64-65-4687",
@@ -3325,7 +3331,12 @@
       "at": "2026-11-24T02:04:04Z",
       "where": "klipp 01i-u6Vywrg-38-80-83-4522",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T02:04:59Z",
+      "where": "klipp 01i-u6Vywrg-25-62-62-4651",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T02:04:04Z"
+  "updated_at": "2026-11-24T02:04:59Z"
 }
