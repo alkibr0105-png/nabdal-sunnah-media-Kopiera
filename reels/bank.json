@@ -2551,7 +2551,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=10090",
       "score": 2.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-69-38-41-10146",
@@ -3651,7 +3652,12 @@
       "at": "2026-11-24T02:42:29Z",
       "where": "klipp 01i-u6Vywrg-69-25-27-10045",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T02:42:31Z",
+      "where": "klipp 01i-u6Vywrg-69-31-33-10090",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T02:42:29Z"
+  "updated_at": "2026-11-24T02:42:31Z"
 }
