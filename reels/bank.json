@@ -1271,7 +1271,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=4115",
       "score": 4.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ وَٱذْكُرْ عَبْدَنَآ أَيُّوبَ إِذْ نَادَىٰ رَبَّهُۥٓ أَنِّى مَسَّنِىَ ٱلشَّيْطَـٰنُ بِنُصْبٍ وَعَذَابٍ ﴿٤١﴾ ٱرْكُضْ بِرِجْلِكَ ۖ هَـٰذَا مُغْتَسَلٌۢ بَارِدٌ وَشَرَابٌ ﴿٤٢﴾ ﴾\n\n📖 سورة ص — الآيات ٤١–٤٢\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=4115\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_ص #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 28.54,
+      "asset_id": 785309310,
+      "asset": "01i-u6Vywrg-38-41-42-4115.mp4",
+      "ready_at": "2026-11-24T01:57:47Z"
     },
     {
       "id": "01i-u6Vywrg-38-47-48-4198",
@@ -1284,7 +1289,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=4198",
       "score": 1.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-38-50-52-4228",
@@ -3268,7 +3274,12 @@
       "at": "2026-11-24T01:25:17Z",
       "where": "klipp pG7Z2_F4HCc-44-35-37-1124",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T01:57:47Z",
+      "where": "klipp 01i-u6Vywrg-38-47-48-4198",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T01:56:53Z"
+  "updated_at": "2026-11-24T01:57:47Z"
 }
