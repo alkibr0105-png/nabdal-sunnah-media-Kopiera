@@ -74,7 +74,7 @@ module Analyze
     used.to_f / (i1 - i0 + 1) >= 0.7
   end
 
-  def self.candidates(wd, passages)
+  def self.candidates(wd, passages, pick: true)
     all = []
     passages.each do |map|
       vs = verse_timings(wd, map)
@@ -96,6 +96,7 @@ module Analyze
         end
       end
     end
+    return all unless pick
     # best non-overlapping (in time) clips
     picked = []
     all.sort_by { |c| -c[:score] }.each do |c|
