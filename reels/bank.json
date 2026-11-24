@@ -2143,7 +2143,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=8181",
       "score": 2.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ وَإِذْ يَرْفَعُ إِبْرَٰهِـۧمُ ٱلْقَوَاعِدَ مِنَ ٱلْبَيْتِ وَإِسْمَـٰعِيلُ رَبَّنَا تَقَبَّلْ مِنَّآ ۖ إِنَّكَ أَنتَ ٱلسَّمِيعُ ٱلْعَلِيمُ ﴿١٢٧﴾ ﴾\n\n📖 سورة البقرة — الآية ١٢٧\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=8181\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_البقرة #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 24.84,
+      "asset_id": 785390187,
+      "asset": "01i-u6Vywrg-2-127-127-8181.mp4",
+      "ready_at": "2026-11-24T02:30:11Z"
     },
     {
       "id": "01i-u6Vywrg-2-129-129-8231",
@@ -2156,7 +2161,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=8231",
       "score": 5.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-2-132-132-8291",
@@ -3525,7 +3531,12 @@
       "at": "2026-11-24T02:20:45Z",
       "where": "klipp 01i-u6Vywrg-67-9-9-7065",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T02:30:11Z",
+      "where": "klipp 01i-u6Vywrg-2-129-129-8231",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T02:29:24Z"
+  "updated_at": "2026-11-24T02:30:11Z"
 }
