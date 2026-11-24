@@ -67,7 +67,12 @@
       "channel": "مكة و الحرمين",
       "source_url": "https://youtu.be/pG7Z2_F4HCc?t=6",
       "score": 2.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ إِنَّا جَعَلْنَـٰهُ قُرْءَٰنًا عَرَبِيًّا لَّعَلَّكُمْ تَعْقِلُونَ ﴿٣﴾ وَإِنَّهُۥ فِىٓ أُمِّ ٱلْكِتَـٰبِ لَدَيْنَا لَعَلِىٌّ حَكِيمٌ ﴿٤﴾ أَفَنَضْرِبُ عَنكُمُ ٱلذِّكْرَ صَفْحًا أَن كُنتُمْ قَوْمًا مُّسْرِفِينَ ﴿٥﴾ ﴾\n\n📖 سورة الزخرف — الآيات ٣–٥\n🎙️ بصوت الشيخ أحمد بن طالب\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: مكة و الحرمين — https://youtu.be/pG7Z2_F4HCc?t=6\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_الزخرف #أحمد_بن_طالب #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 22.56,
+      "asset_id": 785205698,
+      "asset": "pG7Z2_F4HCc-43-3-5-6.mp4",
+      "ready_at": "2026-11-24T01:15:11Z"
     },
     {
       "id": "pG7Z2_F4HCc-43-7-9-34",
@@ -80,7 +85,8 @@
       "channel": "مكة و الحرمين",
       "source_url": "https://youtu.be/pG7Z2_F4HCc?t=34",
       "score": 2.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "pG7Z2_F4HCc-43-11-12-69",
@@ -2905,7 +2911,11 @@
     }
   ],
   "errors": [
-
+    {
+      "at": "2026-11-24T01:15:11Z",
+      "where": "klipp pG7Z2_F4HCc-43-7-9-34",
+      "message": "klippet hittades inte vid ny analys"
+    }
   ],
-  "updated_at": "2026-11-23T23:43:42Z"
+  "updated_at": "2026-11-24T01:15:11Z"
 }
