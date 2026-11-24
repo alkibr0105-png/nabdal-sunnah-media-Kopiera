@@ -3089,7 +3089,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=12616",
       "score": 1.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ وَقَالَ ٱلَّذِينَ كَفَرُوا۟ هَلْ نَدُلُّكُمْ عَلَىٰ رَجُلٍ يُنَبِّئُكُمْ إِذَا مُزِّقْتُمْ كُلَّ مُمَزَّقٍ إِنَّكُمْ لَفِى خَلْقٍ جَدِيدٍ ﴿٧﴾ ﴾\n\n📖 سورة سبإ — الآية ٧\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=12616\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_سبإ #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 20.92,
+      "asset_id": 785478919,
+      "asset": "01i-u6Vywrg-34-7-7-12616.mp4",
+      "ready_at": "2026-11-24T03:03:40Z"
     },
     {
       "id": "01i-u6Vywrg-34-16-16-12908",
@@ -3102,7 +3107,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=12908",
       "score": 2.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ فَأَعْرَضُوا۟ فَأَرْسَلْنَا عَلَيْهِمْ سَيْلَ ٱلْعَرِمِ وَبَدَّلْنَـٰهُم بِجَنَّتَيْهِمْ جَنَّتَيْنِ ذَوَاتَىْ أُكُلٍ خَمْطٍ وَأَثْلٍ وَشَىْءٍ مِّن سِدْرٍ قَلِيلٍ ﴿١٦﴾ ﴾\n\n📖 سورة سبإ — الآية ١٦\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=12908\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_سبإ #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 27.87,
+      "asset_id": 785480891,
+      "asset": "01i-u6Vywrg-34-16-16-12908.mp4",
+      "ready_at": "2026-11-24T03:04:31Z"
     },
     {
       "id": "01i-u6Vywrg-34-18-18-12946",
@@ -3115,7 +3125,12 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=12946",
       "score": 2.0,
-      "status": "pending"
+      "status": "ready",
+      "caption": "﴿ وَجَعَلْنَا بَيْنَهُمْ وَبَيْنَ ٱلْقُرَى ٱلَّتِى بَـٰرَكْنَا فِيهَا قُرًى ظَـٰهِرَةً وَقَدَّرْنَا فِيهَا ٱلسَّيْرَ ۖ سِيرُوا۟ فِيهَا لَيَالِىَ وَأَيَّامًا ءَامِنِينَ ﴿١٨﴾ ﴾\n\n📖 سورة سبإ — الآية ١٨\n🎙️ بصوت الشيخ بدر التركي\n\nاستمع بقلبك وتدبّر 🤍\n\nالمصدر: بين الصوتين — https://youtu.be/01i-u6Vywrg?t=12946\nنص الآيات: مشروع تنزيل tanzil.net\n\n#قرآن #القرآن_الكريم #تلاوة #تلاوة_خاشعة #تلاوات #سورة_سبإ #بدر_التركي #راحة_نفسية #نبض_السنة #quran #quranrecitation",
+      "duration": 23.26,
+      "asset_id": 785482412,
+      "asset": "01i-u6Vywrg-34-18-18-12946.mp4",
+      "ready_at": "2026-11-24T03:05:13Z"
     },
     {
       "id": "01i-u6Vywrg-34-21-21-13014",
@@ -3128,7 +3143,8 @@
       "channel": "بين الصوتين",
       "source_url": "https://youtu.be/01i-u6Vywrg?t=13014",
       "score": 5.0,
-      "status": "pending"
+      "status": "failed",
+      "error": "klippet hittades inte vid ny analys"
     },
     {
       "id": "01i-u6Vywrg-34-23-23-13064",
@@ -3653,11 +3669,6 @@
   ],
   "errors": [
     {
-      "at": "2026-11-24T01:20:00Z",
-      "where": "klipp pG7Z2_F4HCc-43-37-38-387",
-      "message": "klippet hittades inte vid ny analys"
-    },
-    {
       "at": "2026-11-24T01:20:01Z",
       "where": "klipp pG7Z2_F4HCc-43-39-41-409",
       "message": "klippet hittades inte vid ny analys"
@@ -3801,7 +3812,12 @@
       "at": "2026-11-24T02:56:32Z",
       "where": "klipp 01i-u6Vywrg-40-75-76-11745",
       "message": "klippet hittades inte vid ny analys"
+    },
+    {
+      "at": "2026-11-24T03:05:13Z",
+      "where": "klipp 01i-u6Vywrg-34-21-21-13014",
+      "message": "klippet hittades inte vid ny analys"
     }
   ],
-  "updated_at": "2026-11-24T03:03:00Z"
+  "updated_at": "2026-11-24T03:05:13Z"
 }
