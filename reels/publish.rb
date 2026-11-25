@@ -65,6 +65,16 @@ def ig(method, url, form: nil, headers: {}, body: nil)
   [c, (JSON.parse(b) rescue { 'raw' => b })]
 end
 
+# read-only: confirm the token and account work (used by --dry-run)
+def check_token
+  base, _, tok = graph
+  raise "IG_ACCESS_TOKEN saknas (lägg in den under Settings → Secrets → Actions)" if tok.empty?
+  raise "IG_USER_ID saknas (lägg in den under Settings → Secrets → Actions)" if CFG["IG_USER_ID"].to_s.empty?
+  c, b = ig(:get, "#{base}/#{CFG["IG_USER_ID"]}?fields=username", headers: { "Authorization" => "Bearer #{tok}" })
+  raise "Instagram-token fungerar inte (#{c}): #{b.dig("error", "message")}" unless c == 200
+  log "Instagram-token OK: @#{b["username"]}"
+end
+
 def publish_reel(clip, video)
   base, ver, tok = graph
   raise 'IG_ACCESS_TOKEN saknas' if tok.empty?
@@ -104,6 +114,7 @@ def current_slot
 end
 
 def run_slot
+  check_token if DRY
   slot, target = current_slot
   if ARGV.include?('--now') then slot, target = ['manual', Time.now] end
   return log('Ingen publiceringstid just nu (12:00 eller 19:00 svensk tid). Avslutar.') unless slot
