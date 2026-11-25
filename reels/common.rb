@@ -20,9 +20,19 @@ module Common
       ENV['PATH'].split(File::PATH_SEPARATOR).map { |d| File.join(d, name) }.find { |p| File.executable?(p) } || name
   end
 
+  # Secrets pasted into GitHub often carry a trailing line break or quotes; HTTP headers reject them.
+  def self.clean(k, v)
+    v = v.to_s.strip.gsub(/A["']|["']z/, "")
+    case k
+    when "IG_ACCESS_TOKEN" then v[/(EAA[A-Za-z0-9]{50,}|IG[A-Za-z0-9_\-]{50,})/, 1] || v.gsub(/ /, "")
+    when "IG_USER_ID"      then v[/d{5,}/] || v
+    else v
+    end
+  end
+  
   def self.config
     keys = %w[GRAPH_HOST GRAPH_VERSION IG_USER_ID IG_ACCESS_TOKEN GITHUB_REPO GITHUB_BRANCH GITHUB_TOKEN SMTP_USER SMTP_PASS NOTIFY_EMAIL]
-    cfg = keys.each_with_object({}) { |k, h| h[k] = ENV[k] if ENV[k] && !ENV[k].empty? }
+    cfg = keys.each_with_object({}) { |k, h| h[k] = clean(k, ENV[k]) if ENV[k] && !ENV[k].strip.empty? }
     if File.exist?(CONFIG)
       raw = File.read(CONFIG)
       raw.lines.each do |l|
