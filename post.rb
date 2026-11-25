@@ -28,10 +28,20 @@ end
 
 def die(msg) notify(msg); exit 1 end
 
+# Secrets pasted into GitHub often carry a trailing line break or quotes; HTTP headers reject them.
+def clean_secret(k, v)
+  v = v.to_s.strip.gsub(/A["']|["']z/, "")
+  case k
+  when "IG_ACCESS_TOKEN" then v[/(EAA[A-Za-z0-9]{50,}|IG[A-Za-z0-9_\-]{50,})/, 1] || v.gsub(/ /, "")
+  when "IG_USER_ID"      then v[/d{5,}/] || v
+  else v
+  end
+end
+
 def load_config
   # On GitHub Actions there is no config.env: values come from encrypted secrets via environment variables.
   env = %w[GRAPH_HOST GRAPH_VERSION IG_USER_ID IG_ACCESS_TOKEN GITHUB_REPO GITHUB_BRANCH GITHUB_TOKEN]
-          .each_with_object({}) { |k, h| h[k] = ENV[k] if ENV[k] && !ENV[k].empty? }
+          .each_with_object({}) { |k, h| h[k] = clean_secret(k, ENV[k]) if ENV[k] && !ENV[k].strip.empty? }
   return env unless File.exist?(CONFIG)
   raw = File.read(CONFIG)
   cfg = raw.lines.each_with_object({}) do |l, h|
